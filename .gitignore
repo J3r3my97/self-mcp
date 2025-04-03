@@ -1,0 +1,14 @@
+cloud-sql-proxy
+.env
+/src/__pycache__
+
+# Virtual Environment
+venv/
+env/
+.env/
+.venv/
+ENV/
+*.pyc
+__pycache__/
+.Python
+/local
