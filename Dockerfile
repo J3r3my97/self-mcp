@@ -1,17 +1,35 @@
-FROM python:3.9-slim@sha256:980b778550c0d938574f1b556362b27601ea5c620130a572feb63ac1df03eda5 
+# Use Python 3.9 slim image
+FROM python:3.9-slim
 
-ENV PYTHONUNBUFFERED True
+# Set working directory
+WORKDIR /app
 
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
-ENV PORT 1234
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install psycopg2-binary
 
-# As an example here we're running the web service with one worker on uvicorn.
-ENV APP_SOURCE /app/src
-WORKDIR $APP_SOURCE
-CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 1
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 8000
+
+# Set health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Command to run the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
