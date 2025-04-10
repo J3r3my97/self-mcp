@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.schemas import (
     ChatRequest,
-    ErrorResponse,
     GenerateRequest,
     ModelResponse,
     ProviderInfo,
