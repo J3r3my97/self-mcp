@@ -6,14 +6,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.api.schemas import (
     ChatRequest,
     GenerateRequest,
+    Message,
+    ModelRequest,
     ModelResponse,
     ProviderInfo,
     ProvidersResponse,
 )
+from app.core.mcp import get_mcp_server
+from app.models.claude import ClaudeModel
 from app.models.factory import ModelFactory
 from app.utils.settings import get_settings
 
 router = APIRouter()
+claude_model = ClaudeModel()
+
+# Replace mcp_server references
+# mcp_server = get_mcp_server()  # Delete this line
 
 
 @router.post("/generate", response_model=ModelResponse)
@@ -117,5 +125,30 @@ async def list_providers(settings=Depends(get_settings)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list providers: {str(e)}")
+    
+
+# Create a regular function for completions instead of decorating it at module level
+async def generate_completion(request: ModelRequest) -> ModelResponse:
+    """
+    Generate a completion using Claude model.
+    
+    This endpoint follows the Model Context Protocol (MCP) for interacting with Claude.
+    """
+    try:
+        response = await claude_model.generate(
+            messages=request.messages,
+            max_tokens=request.max_tokens,
+            temperature=request.temperature,
+            model=request.model
+        )
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating completion: {str(e)}")
+
+
+@router.post("/completions", response_model=ModelResponse)
+async def create_completion(request: ModelRequest):
+    """Legacy API endpoint for completions."""
+    return await generate_completion(request)
     
 

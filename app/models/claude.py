@@ -2,7 +2,11 @@
 import os
 from typing import Any, Dict, List, Optional
 
+import anthropic
 import httpx
+
+from app.api.schemas import Message, ModelResponse
+from app.utils.settings import get_settings
 
 from .base import BaseModelProvider
 
@@ -109,3 +113,43 @@ class ClaudeProvider(BaseModelProvider):
     def get_available_models(self) -> List[str]:
         """Get the list of available Claude models."""
         return self.AVAILABLE_MODELS
+
+
+class ClaudeModel:
+    def __init__(self):
+        settings = get_settings()
+        self.client = anthropic.Client(api_key=settings.ANTHROPIC_API_KEY)
+        self.default_model = "claude-3-sonnet-20240229"
+    
+    async def generate(self, messages: List[Message], max_tokens: int = 1000, 
+                      temperature: float = 0.7, model: str = None) -> ModelResponse:
+        """Generate a response using Claude API."""
+        model_name = model or self.default_model
+        
+        # Convert messages to Anthropic format
+        anthropic_messages = [
+            {"role": msg.role, "content": msg.content} 
+            for msg in messages
+        ]
+        
+        # Call Claude API
+        response = await self.client.messages.create(
+            model=model_name,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            messages=anthropic_messages
+        )
+        
+        # Extract usage information
+        usage = {
+            "prompt_tokens": response.usage.input_tokens,
+            "completion_tokens": response.usage.output_tokens,
+            "total_tokens": response.usage.input_tokens + response.usage.output_tokens
+        }
+        
+        # Create and return response
+        return ModelResponse(
+            content=response.content[0].text,
+            model=model_name,
+            usage=usage
+        )

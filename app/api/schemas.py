@@ -1,4 +1,5 @@
 # app/api/schemas.py
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
@@ -6,8 +7,8 @@ from pydantic import BaseModel, Field
 
 class Message(BaseModel):
     """Message in a conversation."""
-    role: str = Field(..., description="Role of the message sender (e.g., user, assistant)")
-    content: str = Field(..., description="Content of the message")
+    role: str = Field(..., description="The role of the message sender (system, user, or assistant)")
+    content: str = Field(..., description="The content of the message")
 
 
 class GenerateRequest(BaseModel):
@@ -36,12 +37,21 @@ class ChatRequest(BaseModel):
     additional_params: Optional[Dict[str, Any]] = Field(None, description="Additional model-specific parameters")
 
 
+class ModelRequest(BaseModel):
+    messages: List[Message] = Field(..., description="The conversation messages")
+    max_tokens: Optional[int] = Field(1000, description="Maximum number of tokens to generate")
+    temperature: Optional[float] = Field(0.7, description="Sampling temperature")
+    model: Optional[str] = Field(None, description="Model to use for completion")
+
+
 class ModelResponse(BaseModel):
     """Response schema for model completions."""
     provider: str = Field(..., description="Provider that generated the response")
     model: str = Field(..., description="Model that generated the response")
     content: str = Field(..., description="Generated content")
     raw_response: Optional[Dict[str, Any]] = Field(None, description="Raw response from the model provider")
+    usage: Dict[str, int] = Field(..., description="Token usage information")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ErrorResponse(BaseModel):

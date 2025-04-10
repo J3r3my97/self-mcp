@@ -1,64 +1,64 @@
 # app/main.py
-import os
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_mcp import add_mcp_server
 
+from app.api.routes import ModelRequest, ModelResponse, generate_completion
 from app.api.routes import router as api_router
+from app.core.mcp import init_mcp_server
 from app.utils.logging import setup_logging
 from app.utils.settings import get_settings
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def create_application() -> FastAPI:
+def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    settings = get_settings()
-    
-    # Set up logging
-    setup_logging(settings.LOG_LEVEL)
-    
-    # Initialize FastAPI app
     app = FastAPI(
-        title=settings.APP_NAME,
-        description="Model Context Protocol (MCP) API for interacting with different LLMs",
-        version="0.1.0",
-        debug=settings.DEBUG,
+        title="AI Model API",
+        description="API for interacting with various AI models through a unified interface",
+        version="1.0.0"
     )
-    
-    # Configure CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS.split(","),
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    
-    # Include API routes
-    app.include_router(api_router, prefix="/api")
-    
-    # Root endpoint
-    @app.get("/")
-    async def root():
-        return {
-            "app": settings.APP_NAME,
-            "version": "0.1.0",
-            "status": "running"
-        }
-    
-    # Health check endpoint
+
     @app.get("/health")
     async def health_check():
-        return {"status": "healthy"}
-    
+        """Health check endpoint to verify service status."""
+        try:
+            return {"status": "healthy"}
+        except Exception as e:
+            logger.error(f"Health check failed: {e}")
+            raise HTTPException(status_code=500, detail="Service unhealthy")
+
+    # Initialize MCP server
+    try:
+        logger.info("Initializing MCP server...")
+        mcp_server = add_mcp_server(
+            app,
+            mount_path="/mcp",
+            name="AI Model API",
+            describe_all_responses=True,
+            describe_full_response_schema=True
+        )
+        logger.info("MCP server initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize MCP server: {e}")
+        raise
+
     return app
 
-
-app = create_application()
-
+app = create_app()
 
 if __name__ == "__main__":
-    import uvicorn
-    
-    settings = get_settings()
-    # Use port from settings instead of directly from environment
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    try:
+        import uvicorn
+        logger.info("Starting server...")
+        uvicorn.run(app, host="0.0.0.0", port=8001)
+    except Exception as e:
+        logger.error(f"Failed to start server: {e}")
+        raise
