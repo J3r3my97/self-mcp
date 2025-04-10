@@ -2,14 +2,7 @@
 import logging
 
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mcp import add_mcp_server
-
-from app.api.routes import ModelRequest, ModelResponse, generate_completion
-from app.api.routes import router as api_router
-from app.core.mcp import init_mcp_server
-from app.utils.logging import setup_logging
-from app.utils.settings import get_settings
 
 # Configure logging
 logging.basicConfig(
