@@ -3,17 +3,20 @@ from typing import Any, Dict, Optional
 
 import httpx
 
+# Constants
+REQUEST_TIMEOUT = 30.0  # seconds
+USER_AGENT = "(Weather MCP Server, contact@example.com)"
 
 async def make_nws_request(url: str) -> Optional[Dict[str, Any]]:
     """Make a request to the NWS API with proper headers."""
     headers = {
-        "User-Agent": "(Weather MCP Server, contact@example.com)",
+        "User-Agent": USER_AGENT,
         "Accept": "application/geo+json"
     }
     
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(url, headers=headers, timeout=10.0)
+            response = await client.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             response.raise_for_status()
             return response.json()
         except Exception as e:

@@ -1,4 +1,5 @@
 """Weather MCP Server main application."""
+import asyncio
 import logging
 from typing import Any, Dict, Optional
 
@@ -6,6 +7,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mcp import add_mcp_server
 from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from app.utils.nws import format_alert, make_nws_request
 
@@ -15,6 +19,17 @@ logger = logging.getLogger(__name__)
 
 # Constants
 NWS_API_BASE = "https://api.weather.gov"
+MCP_TIMEOUT = 45  # seconds, allowing for multiple API calls
+
+class TimeoutMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        try:
+            return await asyncio.wait_for(call_next(request), timeout=MCP_TIMEOUT)
+        except asyncio.TimeoutError:
+            return Response(
+                content="Request timeout",
+                status_code=504
+            )
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -23,7 +38,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add middleware
+app.add_middleware(TimeoutMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
