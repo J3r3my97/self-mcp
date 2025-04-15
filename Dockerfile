@@ -6,7 +6,8 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
-ENV PORT 1234
+# Use the PORT environment variable from Cloud Run
+ENV PORT 8080
 
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install psycopg2-binary
@@ -14,4 +15,4 @@ RUN pip install psycopg2-binary
 # As an example here we're running the web service with one worker on uvicorn.
 ENV APP_SOURCE /app/src
 WORKDIR $APP_SOURCE
-CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 1
+CMD exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT} --workers 1
