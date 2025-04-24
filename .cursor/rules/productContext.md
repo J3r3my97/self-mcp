@@ -14,9 +14,9 @@ Gate-Release.io provides an AI-powered solution that:
 
 ### Core User Journey
 1. User uploads an image containing fashion items
-2. System processes the image and detects items
-3. System identifies each item's category and attributes
-4. System finds similar products in the database
+2. System processes the image and detects items using Faster R-CNN
+3. System extracts features using Vision Transformer
+4. System finds similar products using cosine similarity
 5. User receives results with purchase links
 
 ### Key User Benefits
@@ -35,32 +35,37 @@ Gate-Release.io provides an AI-powered solution that:
 
 ### Technical Flow
 1. Image Upload
-   - User submits image through web interface
+   - User submits image through API
    - System validates and preprocesses image
+   - Image stored in Firebase Storage
 
 2. Item Detection
-   - YOLO/Faster R-CNN identifies fashion items
+   - Faster R-CNN processes image
    - Generates bounding boxes around items
-   - Handles multiple items in single image
+   - Provides confidence scores
+   - Handles multiple items
 
 3. Feature Extraction
-   - Vision Transformer extracts visual features
-   - Classifies items by category
-   - Identifies attributes (color, pattern, etc.)
+   - Vision Transformer processes each detection
+   - Extracts 768-dimensional feature vectors
+   - Generates embeddings for matching
+   - Stores embeddings in Firebase
 
 4. Product Matching
-   - Vector similarity search finds closest matches
-   - Ranks results by similarity
-   - Returns top matches with purchase links
+   - Cosine similarity search
+   - Ranks results by similarity score
+   - Returns top matches with details
+   - Saves search results
 
 ### Data Flow
 1. Input: User-uploaded image
-2. Processing: Detection → Classification → Matching
-3. Output: List of similar products with details
+2. Processing: Detection → Feature Extraction → Matching
+3. Storage: Firebase Database + Storage
+4. Output: SearchResponse with results
 
 ## Success Criteria
 1. Accurate item detection (90%+ accuracy)
 2. Fast processing (under 2 seconds)
 3. Relevant product matches
-4. User-friendly interface
-5. Reliable purchase links 
+4. Reliable Firebase integration
+5. Comprehensive test coverage 

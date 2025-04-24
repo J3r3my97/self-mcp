@@ -4,50 +4,57 @@
 
 ### Backend
 - **Framework**: FastAPI
-- **Language**: Python 3.9+
+- **Language**: Python 3.12+
 - **Database**: Firebase Realtime Database
 - **Vector Store**: Firebase Storage + Custom Index
 - **API Documentation**: OpenAPI/Swagger
 
 ### Computer Vision
-- **Object Detection**: YOLO/Faster R-CNN
-- **Feature Extraction**: Vision Transformer (ViT)
-- **Image Processing**: OpenCV, Pillow
+- **Object Detection**: Faster R-CNN (ResNet50 FPN V2)
+- **Feature Extraction**: Vision Transformer (ViT-base-patch16-224)
+- **Image Processing**: Pillow, torchvision
 - **Deep Learning**: PyTorch
 
 ### Infrastructure
 - **Cloud Platform**: Google Cloud Platform
-- **Containerization**: Docker
-- **CI/CD**: Cloud Build
+- **Database**: Firebase
 - **Storage**: Firebase Storage
+- **Testing**: pytest, pytest-asyncio
 
 ## Development Setup
 
 ### Environment
-- Python 3.9+
+- Python 3.12+
 - Virtual environment (.venv)
 - Environment variables (.env)
-- Docker for containerization
+- Firebase configuration
 
 ### Dependencies
-- Core requirements in requirements.txt
-- Development tools:
-  - black for formatting
-  - flake8 for linting
-  - pytest for testing
-  - mypy for type checking
+```
+torch==2.2.0
+torchvision==0.17.0
+transformers==4.37.2
+Pillow==10.2.0
+numpy==1.26.3
+firebase-admin
+pytest
+pytest-asyncio
+```
 
-### Database Setup
-1. Firebase project setup
-2. Service account configuration
-3. Security rules setup
-4. Initial data structure
+### Firebase Setup
+1. Firebase project initialized
+2. Service account configured
+3. Security rules defined
+4. Collections structure:
+   - products
+   - categories
+   - search_results
 
 ### Model Setup
-1. Pre-trained YOLO weights
-2. Pre-trained ViT weights
+1. Faster R-CNN (pre-trained)
+2. Vision Transformer (pre-trained)
 3. Model configuration
-4. GPU support (optional)
+4. CPU/GPU support
 
 ## Technical Constraints
 
@@ -60,13 +67,13 @@
 ### Security
 - Secure file uploads
 - Input validation
-- Rate limiting
+- Firebase rules
 - Error handling
 
 ### Scalability
 - Firebase auto-scaling
 - Efficient data structure
-- Caching strategy
+- Embedding storage
 - Batch operations
 
 ## Development Workflow
@@ -74,8 +81,12 @@
 ### Code Organization
 ```
 src/
-├── api/           # API endpoints
-├── models/        # ML models
+├── api/           # API endpoints and schemas
+├── models/        # ML models and interfaces
+│   ├── fashion_detector.py
+│   └── similarity_search.py
+├── services/      # Business logic
+│   └── image_processor.py
 ├── database/      # Firebase models
 ├── utils/         # Utilities
 └── main.py        # Application entry
@@ -89,8 +100,8 @@ src/
 
 ### Deployment Process
 1. Local development
-2. Staging environment
-3. Production deployment
+2. Firebase deployment
+3. Production setup
 4. Monitoring setup
 
 ## API Documentation
@@ -106,18 +117,26 @@ src/
    - Component health
 
 ### Data Models
-1. FashionItem
-   - Category
+1. ProductResponse
+   - ID
    - Brand
    - Name
    - Price
-   - URL
-   - Similarity score
+   - Currency
+   - Source URL
+   - Image URL
 
-2. DetectionResult
-   - Items list
+2. DetectionResponse
+   - Product
+   - Similarity score
+   - Bounding box
+   - Confidence
+
+3. SearchResponse
+   - Query ID
+   - Results list
    - Processing time
-   - Timestamp
+   - Created at
 
 ## Monitoring and Logging
 

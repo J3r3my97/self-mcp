@@ -6,15 +6,18 @@
 ```mermaid
 graph TD
     A[Client] --> B[API Server]
-    B --> C[Image Processor]
-    C --> D[Object Detector]
-    C --> E[Feature Extractor]
-    D --> F[Similarity Search]
-    E --> F
-    F --> G[Firebase Database]
-    F --> H[Firebase Storage]
-    G --> B
-    H --> B
+    B --> C[ImageProcessor]
+    C --> D[FashionDetector]
+    D --> E[Object Detection]
+    D --> F[Feature Extraction]
+    E --> G[Faster R-CNN]
+    F --> H[Vision Transformer]
+    G --> I[SimilaritySearch]
+    H --> I
+    I --> J[Firebase Database]
+    I --> K[Firebase Storage]
+    J --> B
+    K --> B
 ```
 
 ### Component Relationships
@@ -24,72 +27,72 @@ graph TD
    - Coordinates processing pipeline
    - Returns results to client
 
-2. **Image Processor**
+2. **ImageProcessor**
    - Preprocesses uploaded images
    - Handles image validation
    - Manages image storage in Firebase Storage
    - Coordinates detection pipeline
 
-3. **Object Detector (YOLO/Faster R-CNN)**
+3. **FashionDetector**
+   - Implements Faster R-CNN for detection
+   - Uses Vision Transformer for features
+   - Provides unified interface
+   - Handles model loading
+
+4. **Object Detection (Faster R-CNN)**
    - Detects fashion items in images
    - Generates bounding boxes
    - Provides confidence scores
    - Handles multiple items
 
-4. **Feature Extractor (ViT)**
+5. **Feature Extraction (ViT)**
    - Extracts visual features
-   - Classifies items
-   - Identifies attributes
    - Generates embeddings
+   - Processes detected regions
+   - Provides feature vectors
 
-5. **Similarity Search**
+6. **SimilaritySearch**
    - Vector similarity matching
    - Product ranking
    - Firebase queries
    - Result filtering
 
-6. **Firebase Database**
+7. **Firebase Integration**
    - Stores product information
-   - Manages product metadata
-   - Handles search indexes
-   - Supports efficient querying
-
-7. **Firebase Storage**
-   - Stores product images
    - Manages embeddings
-   - Handles file uploads
+   - Handles file storage
    - Provides secure access
 
 ## Design Patterns
 
-### 1. Pipeline Pattern
-- Sequential processing of images
-- Each step handles specific task
-- Clear separation of concerns
-- Easy to extend and modify
+### 1. Service Pattern
+- ImageProcessor service
+- Clear responsibility separation
+- Coordinated processing flow
+- Error handling and logging
 
 ### 2. Repository Pattern
-- Abstract Firebase operations
-- Centralize data access
-- Simplify data management
-- Enable easy testing
+- Firebase operations abstraction
+- Centralized data access
+- Simplified data management
+- Testing support
 
 ### 3. Factory Pattern
-- Create model instances
-- Handle model configuration
-- Manage model resources
-- Support different backends
+- Model initialization
+- Configuration management
+- Resource handling
+- Backend flexibility
 
 ### 4. Strategy Pattern
 - Interchangeable algorithms
-- Flexible processing options
-- Easy to add new methods
-- Support for different models
+- Processing options
+- Model selection
+- Search strategies
 
 ## Technical Decisions
 
 ### 1. Model Selection
-- YOLO for object detection
+- Faster R-CNN for detection
 - Vision Transformer for features
 - Cosine similarity for matching
 - Pre-trained models initially
@@ -115,14 +118,14 @@ graph TD
 ## Component Communication
 
 ### 1. Internal Communication
-- Direct function calls
-- Clear interfaces
+- Direct method calls
+- Async/await pattern
 - Error propagation
 - Logging and monitoring
 
 ### 2. External Communication
 - HTTP/REST API
-- Firebase Realtime updates
+- Firebase SDK
 - Secure file transfer
 - Rate limiting
 
@@ -132,7 +135,7 @@ graph TD
 - Input validation errors
 - Processing errors
 - Firebase errors
-- Network errors
+- Model errors
 
 ### 2. Error Recovery
 - Graceful degradation
