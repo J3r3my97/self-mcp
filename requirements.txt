@@ -91,13 +91,3 @@ validators==0.34.0 ; python_version >= "3.9" and python_version < "4.0"
 wrapt==1.16.0 ; python_version >= "3.9" and python_version < "4.0"
 yarl==1.9.4 ; python_version >= "3.9" and python_version < "4.0"
 google-cloud-pubsub
-torch==2.2.0
-torchvision==0.17.0
-transformers==4.37.2
-opencv-python==4.9.0.80
-pillow==10.2.0
-aiofiles==23.2.1
-python-jose==3.3.0
-passlib==1.7.4
-bcrypt==4.1.2
-python-dotenv==1.0.1
