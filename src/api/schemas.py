@@ -23,4 +23,34 @@ class DetectionResult(BaseModel):
 class ErrorResponse(BaseModel):
     detail: str
     code: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow) 
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class BoundingBox(BaseModel):
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+
+class ProductResponse(BaseModel):
+    id: str
+    brand: str
+    name: str
+    price: float
+    currency: str
+    source_url: str
+    image_url: str
+
+
+class DetectionResponse(BaseModel):
+    product: Optional[ProductResponse] = None
+    similarity_score: float = Field(ge=0.0, le=1.0)
+    bounding_box: BoundingBox
+    confidence: float = Field(ge=0.0, le=1.0)
+
+
+class SearchResponse(BaseModel):
+    query_id: str
+    results: List[DetectionResponse]
+    processing_time: float
+    created_at: datetime 

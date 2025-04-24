@@ -2,6 +2,8 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+import numpy as np
+
 from ..utils.firebase_config import get_database, get_storage
 from .models import (
     COLLECTIONS,
@@ -84,9 +86,53 @@ class FirebaseRepository:
         return blob.public_url
 
     async def upload_embedding(self, product_id: str, embedding: List[float]) -> str:
-        blob = self.storage.blob(f"{STORAGE_PATHS['embeddings']}/{product_id}.npy")
-        blob.upload_from_string(str(embedding))
-        return blob.public_url
+        """Upload product embedding to Firebase Storage."""
+        try:
+            # Convert embedding to bytes
+            embedding_bytes = np.array(embedding).tobytes()
+            
+            # Upload to storage
+            blob = self.storage.blob(f"{STORAGE_PATHS['embeddings']}/{product_id}.npy")
+            blob.upload_from_string(embedding_bytes)
+            
+            return blob.public_url
+        except Exception as e:
+            logger.error(f"Error uploading embedding: {str(e)}")
+            raise
+
+    async def get_embedding(self, product_id: str) -> Optional[List[float]]:
+        """Get product embedding from Firebase Storage."""
+        try:
+            # Get blob reference
+            blob = self.storage.blob(f"{STORAGE_PATHS['embeddings']}/{product_id}.npy")
+            
+            # Check if embedding exists
+            if not blob.exists():
+                return None
+            
+            # Download embedding
+            embedding_bytes = blob.download_as_bytes()
+            embedding = np.frombuffer(embedding_bytes, dtype=np.float32).tolist()
+            
+            return embedding
+        except Exception as e:
+            logger.error(f"Error retrieving embedding: {str(e)}")
+            return None
+
+    async def get_search_result(self, query_id: str) -> Optional[SearchResult]:
+        """Get search results by query ID."""
+        try:
+            search_data = self.db.child(COLLECTIONS['searches']).child(query_id).get()
+            if not search_data:
+                return None
+            
+            # Convert ISO format string back to datetime
+            search_data['created_at'] = datetime.fromisoformat(search_data['created_at'])
+            
+            return SearchResult(**search_data)
+        except Exception as e:
+            logger.error(f"Error retrieving search results: {str(e)}")
+            return None
 
     # Query operations
     async def search_products(self, query: Dict[str, Any], limit: int = 10) -> List[Product]:
