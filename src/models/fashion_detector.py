@@ -1,4 +1,6 @@
 import io
+import logging
+import time
 from typing import Any, Dict, List
 
 import numpy as np
@@ -9,9 +11,9 @@ import torchvision.transforms as T
 import torchvision.transforms.functional as F
 from PIL import Image
 from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2
-from transformers import ViTImageProcessor, ViTModel
+from transformers import ViTFeatureExtractor, ViTModel
 
-from ..utils.config import settings
+from utils.config import settings
 
 
 class FashionDetector:
@@ -26,7 +28,7 @@ class FashionDetector:
         
         # Initialize feature extractor
         self.feature_extractor = ViTModel.from_pretrained('google/vit-base-patch16-224')
-        self.feature_processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
+        self.feature_processor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
         self.feature_extractor.to(self.device)
         self.feature_extractor.eval()
         
@@ -124,3 +126,32 @@ class FashionDetector:
             embeddings = outputs.pooler_output.cpu().numpy()
             
         return embeddings[0].tolist()  # Convert numpy array to list and return 
+
+    def check_status(self) -> Dict[str, Any]:
+        """Check model status and health."""
+        try:
+            # Check if models are loaded
+            detector_loaded = hasattr(self, 'detector') and self.detector is not None
+            vit_loaded = hasattr(self, 'vit_model') and self.vit_model is not None
+            
+            # Try a small forward pass
+            if detector_loaded and vit_loaded:
+                test_input = torch.randn(1, 3, 224, 224).to(self.device)
+                with torch.no_grad():
+                    self.detector(test_input)
+                    self.vit_model(test_input)
+            
+            return {
+                "status": "healthy",
+                "details": {
+                    "device": str(self.device),
+                    "detector_loaded": detector_loaded,
+                    "vit_loaded": vit_loaded,
+                    "memory_allocated": torch.cuda.memory_allocated() if self.device == "cuda" else 0
+                }
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "error": str(e)
+            } 

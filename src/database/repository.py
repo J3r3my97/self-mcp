@@ -1,11 +1,11 @@
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from ..utils.firebase_config import get_database, get_storage
-from .models import (
+from database.models import (
     COLLECTIONS,
     STORAGE_PATHS,
     Attribute,
@@ -14,7 +14,10 @@ from .models import (
     Product,
     SearchResult,
 )
+from utils.firebase_config import get_database, get_storage
 
+# Configure logging
+logger = logging.getLogger(__name__)
 
 class FirebaseRepository:
     def __init__(self):
@@ -153,3 +156,42 @@ class FirebaseRepository:
                     break
         
         return results 
+
+    async def check_connection(self) -> Dict[str, Any]:
+        """Check Firebase connection status."""
+        try:
+            # Try to read a small piece of data
+            ref = self.db.reference('/health')
+            await ref.get()
+            return {
+                "status": "healthy",
+                "details": {
+                    "database_url": self.db.reference().path,
+                    "connected": True
+                }
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "error": str(e)
+            }
+
+    async def check_storage(self) -> Dict[str, Any]:
+        """Check Firebase Storage status."""
+        try:
+            # Try to list files in a test directory
+            bucket = self.storage.bucket()
+            blobs = bucket.list_blobs(prefix='test/', max_results=1)
+            list(blobs)  # Force evaluation
+            return {
+                "status": "healthy",
+                "details": {
+                    "bucket_name": bucket.name,
+                    "connected": True
+                }
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "error": str(e)
+            } 

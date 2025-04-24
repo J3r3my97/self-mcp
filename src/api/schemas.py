@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -53,4 +53,15 @@ class SearchResponse(BaseModel):
     query_id: str
     results: List[DetectionResponse]
     processing_time: float
-    created_at: datetime 
+    created_at: datetime
+
+class ComponentStatus(BaseModel):
+    status: str
+    details: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+class HealthResponse(BaseModel):
+    status: str
+    components: Dict[str, ComponentStatus]
+    timestamp: float
+    error: Optional[str] = None 

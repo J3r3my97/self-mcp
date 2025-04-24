@@ -12,3 +12,4 @@ ENV/
 __pycache__/
 .Python
 /local
+serviceAccountKey.json

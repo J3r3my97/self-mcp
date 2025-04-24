@@ -1,33 +1,39 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from .api.endpoints import router as api_router
-from .utils.config import settings
-from .utils.firebase_config import initialize_firebase
-
-app = FastAPI(
-    title="Gate-Release.io API",
-    description="Fashion item identification and search API",
-    version="0.1.0"
-)
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from api.endpoints import router as api_router
+from utils.config import settings
+from utils.firebase_config import initialize_firebase
 
 # Initialize Firebase
-@app.on_event("startup")
-async def startup_event():
-    if not initialize_firebase():
-        raise Exception("Failed to initialize Firebase")
+if not initialize_firebase():
+    raise RuntimeError("Failed to initialize Firebase")
 
-# Include API routes
-app.include_router(api_router, prefix="/api")
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description="API for fashion item detection and similarity search",
+    version="1.0.0"
+)
+
+# Add middleware
+app.add_middleware(GZipMiddleware, minimum_size=settings.GZIP_MIN_SIZE)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_CREDENTIALS,
+    allow_methods=settings.CORS_METHODS,
+    allow_headers=settings.CORS_HEADERS,
+)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
+
+if settings.ENABLE_HTTPS_REDIRECT:
+    app.add_middleware(HTTPSRedirectMiddleware)
+
+# Include API router
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 async def root():
