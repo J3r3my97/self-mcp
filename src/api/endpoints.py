@@ -31,7 +31,7 @@ similarity_search = SimilaritySearch(repository)
 image_processor = ImageProcessor(detector, similarity_search, repository)
 
 # Rate limiting dictionary
-request_counts: Dict[str, int] = {}
+request_counts: Dict[str, Dict[str, Any]] = {}
 
 @router.post(
     "/identify",
@@ -53,10 +53,14 @@ async def identify_fashion(
         client_ip = request.client.host
         current_time = time.time()
         
-        # Clean up old entries
-        request_counts = {ip: count for ip, count in request_counts.items() 
-                         if current_time - count['timestamp'] < 60}
+        # Clean up old entries (older than 1 minute)
+        global request_counts
+        request_counts = {
+            ip: data for ip, data in request_counts.items()
+            if current_time - data['timestamp'] < 60
+        }
         
+        # Check rate limit
         if client_ip in request_counts:
             if request_counts[client_ip]['count'] >= settings.MAX_REQUESTS_PER_MINUTE:
                 raise HTTPException(

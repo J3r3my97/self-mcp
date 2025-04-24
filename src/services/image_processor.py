@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 import numpy as np
 from PIL import Image
 
-from api.schemas import DetectionResponse, SearchResponse
+from api.schemas import DetectionResponse, ProductResponse, SearchResponse
 from database.models import Category, Product
 from database.repository import FirebaseRepository
 from models.fashion_detector import FashionDetector
@@ -52,11 +52,24 @@ class ImageProcessor:
                 
                 # Get the most similar product for this detection
                 product = similar_products[0] if similar_products else None
-                similarity_score = 1.0 if product else 0.0
+                similarity_score = product.get('similarity_score', 0.0) if product else 0.0
+                
+                # Convert product dict to ProductResponse if exists
+                product_response = None
+                if product:
+                    product_response = ProductResponse(
+                        id=product.get('id', ''),
+                        brand=product.get('brand', ''),
+                        name=product.get('name', ''),
+                        price=product.get('price', 0.0),
+                        currency=product.get('currency', 'USD'),
+                        source_url=product.get('source_url', ''),
+                        image_url=product.get('image_url', '')
+                    )
                 
                 detection_results.append(
                     DetectionResponse(
-                        product=product,
+                        product=product_response,
                         similarity_score=similarity_score,
                         bounding_box={
                             'x1': box[0],
