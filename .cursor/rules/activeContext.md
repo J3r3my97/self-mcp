@@ -12,20 +12,21 @@ Implementing MVP with core functionality:
 2. Created basic FastAPI server
 3. Added core dependencies
 4. Defined API schemas
+5. Switched to Firebase from PostgreSQL
 
 ## Next Steps
 
 ### Phase 1: Core Setup (Current)
-1. [ ] Set up database models
-   - Products table
-   - Categories table
-   - Attributes table
-   - Embeddings table
+1. [ ] Set up Firebase models
+   - Products collection
+   - Categories collection
+   - Attributes collection
+   - Embeddings storage
 
 2. [ ] Implement basic image processing
    - Image validation
    - Preprocessing pipeline
-   - Storage handling
+   - Firebase Storage handling
 
 3. [ ] Create model interfaces
    - Detector interface
@@ -46,7 +47,7 @@ Implementing MVP with core functionality:
 3. [ ] Create similarity search
    - Implement vector matching
    - Add ranking logic
-   - Create database queries
+   - Create Firebase queries
 
 ### Phase 3: API Development
 1. [ ] Complete API endpoints
@@ -57,7 +58,7 @@ Implementing MVP with core functionality:
 2. [ ] Add error handling
    - Input validation
    - Processing errors
-   - Database errors
+   - Firebase errors
 
 3. [ ] Implement testing
    - Unit tests
@@ -73,10 +74,10 @@ Implementing MVP with core functionality:
 - Will fine-tune later
 
 ### Database Design
-- PostgreSQL with pgvector
-- Separate tables for products/embeddings
-- Efficient indexing strategy
-- Simple schema for MVP
+- Firebase Realtime Database
+- Firebase Storage for files
+- Custom indexing for search
+- Efficient data structure
 
 ### API Design
 - RESTful endpoints
@@ -93,10 +94,10 @@ Implementing MVP with core functionality:
 - Monitor response times
 
 ### Scalability
-- Design for horizontal scaling
-- Plan for database sharding
+- Firebase auto-scaling
+- Efficient data structure
 - Consider caching strategy
-- Prepare for load balancing
+- Optimize queries
 
 ### Testing
 - Need comprehensive test suite
@@ -105,7 +106,7 @@ Implementing MVP with core functionality:
 - Plan for A/B testing
 
 ## Immediate Tasks
-1. Set up database models
+1. Set up Firebase models
 2. Implement basic image processing
 3. Create model interfaces
 4. Add basic error handling

@@ -11,8 +11,10 @@ graph TD
     C --> E[Feature Extractor]
     D --> F[Similarity Search]
     E --> F
-    F --> G[Product Database]
+    F --> G[Firebase Database]
+    F --> H[Firebase Storage]
     G --> B
+    H --> B
 ```
 
 ### Component Relationships
@@ -25,7 +27,7 @@ graph TD
 2. **Image Processor**
    - Preprocesses uploaded images
    - Handles image validation
-   - Manages image storage
+   - Manages image storage in Firebase Storage
    - Coordinates detection pipeline
 
 3. **Object Detector (YOLO/Faster R-CNN)**
@@ -43,14 +45,20 @@ graph TD
 5. **Similarity Search**
    - Vector similarity matching
    - Product ranking
-   - Database querying
+   - Firebase queries
    - Result filtering
 
-6. **Product Database**
+6. **Firebase Database**
    - Stores product information
-   - Manages embeddings
-   - Handles product metadata
+   - Manages product metadata
+   - Handles search indexes
    - Supports efficient querying
+
+7. **Firebase Storage**
+   - Stores product images
+   - Manages embeddings
+   - Handles file uploads
+   - Provides secure access
 
 ## Design Patterns
 
@@ -61,7 +69,7 @@ graph TD
 - Easy to extend and modify
 
 ### 2. Repository Pattern
-- Abstract database operations
+- Abstract Firebase operations
 - Centralize data access
 - Simplify data management
 - Enable easy testing
@@ -87,10 +95,10 @@ graph TD
 - Pre-trained models initially
 
 ### 2. Database Design
-- PostgreSQL for product data
-- Vector extension for embeddings
-- Efficient indexing
-- Scalable architecture
+- Firebase Realtime Database for products
+- Firebase Storage for images and embeddings
+- Custom indexing for similarity search
+- Efficient data structure
 
 ### 3. API Design
 - RESTful endpoints
@@ -99,10 +107,10 @@ graph TD
 - Versioned API
 
 ### 4. Storage Strategy
-- Temporary file storage
-- Cloud storage for uploads
+- Firebase Storage for uploads
 - Efficient cleanup
 - Secure access
+- Optimized for retrieval
 
 ## Component Communication
 
@@ -114,7 +122,7 @@ graph TD
 
 ### 2. External Communication
 - HTTP/REST API
-- WebSocket for updates
+- Firebase Realtime updates
 - Secure file transfer
 - Rate limiting
 
@@ -123,7 +131,7 @@ graph TD
 ### 1. Error Types
 - Input validation errors
 - Processing errors
-- Database errors
+- Firebase errors
 - Network errors
 
 ### 2. Error Recovery

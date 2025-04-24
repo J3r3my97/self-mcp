@@ -5,8 +5,8 @@
 ### Backend
 - **Framework**: FastAPI
 - **Language**: Python 3.9+
-- **Database**: PostgreSQL with pgvector
-- **ORM**: SQLAlchemy
+- **Database**: Firebase Realtime Database
+- **Vector Store**: Firebase Storage + Custom Index
 - **API Documentation**: OpenAPI/Swagger
 
 ### Computer Vision
@@ -19,7 +19,7 @@
 - **Cloud Platform**: Google Cloud Platform
 - **Containerization**: Docker
 - **CI/CD**: Cloud Build
-- **Storage**: Cloud Storage
+- **Storage**: Firebase Storage
 
 ## Development Setup
 
@@ -38,10 +38,10 @@
   - mypy for type checking
 
 ### Database Setup
-1. PostgreSQL 13+
-2. pgvector extension
-3. Initial schema setup
-4. Test data population
+1. Firebase project setup
+2. Service account configuration
+3. Security rules setup
+4. Initial data structure
 
 ### Model Setup
 1. Pre-trained YOLO weights
@@ -64,10 +64,10 @@
 - Error handling
 
 ### Scalability
-- Horizontal scaling
-- Load balancing
+- Firebase auto-scaling
+- Efficient data structure
 - Caching strategy
-- Database optimization
+- Batch operations
 
 ## Development Workflow
 
@@ -76,7 +76,7 @@
 src/
 ├── api/           # API endpoints
 ├── models/        # ML models
-├── database/      # Database models
+├── database/      # Firebase models
 ├── utils/         # Utilities
 └── main.py        # Application entry
 ```

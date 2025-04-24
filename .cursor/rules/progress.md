@@ -23,9 +23,9 @@
 ## What's Left to Build
 
 ### Database
-- [ ] Database models
-- [ ] Migration scripts
-- [ ] Initial schema
+- [ ] Firebase project setup
+- [ ] Firebase models
+- [ ] Security rules
 - [ ] Test data
 
 ### Models
@@ -51,7 +51,7 @@
 ### Phase 1: Setup (In Progress)
 - [x] Project initialization
 - [x] Basic structure
-- [ ] Database setup
+- [ ] Firebase setup
 - [ ] Model interfaces
 
 ### Phase 2: Core Features (Not Started)
@@ -72,7 +72,7 @@
 1. Need to handle large file uploads
 2. Consider memory usage with models
 3. Plan for concurrent processing
-4. Database optimization needed
+4. Firebase query optimization needed
 
 ### Functional
 1. Need to define category taxonomy
@@ -84,7 +84,7 @@
 
 ### Milestone 1: Basic Setup
 - [x] Project structure
-- [ ] Database models
+- [ ] Firebase setup
 - [ ] Basic API
 - [ ] Development environment
 
@@ -103,21 +103,21 @@
 ## Testing Status
 
 ### Unit Tests
-- [ ] Database models
+- [ ] Firebase models
 - [ ] Image processing
 - [ ] Model interfaces
 - [ ] API endpoints
 
 ### Integration Tests
 - [ ] Processing pipeline
-- [ ] Database operations
+- [ ] Firebase operations
 - [ ] API workflows
 - [ ] Error scenarios
 
 ### Performance Tests
 - [ ] Image processing
 - [ ] Model inference
-- [ ] Database queries
+- [ ] Firebase queries
 - [ ] API responses
 
 ## Documentation Status
@@ -126,7 +126,7 @@
 - [x] Project overview
 - [x] Architecture
 - [ ] API documentation
-- [ ] Database schema
+- [ ] Firebase schema
 
 ### User
 - [ ] API usage
