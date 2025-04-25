@@ -12,3 +12,6 @@ ENV/
 __pycache__/
 .Python
 /local
+serviceAccountKey.json
+serviceAccountKey.base64
+/models

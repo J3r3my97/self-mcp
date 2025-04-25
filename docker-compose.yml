@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./models:/app/models
+    environment:
+      - DEBUG=1
+      - PORT=8000
+      - CORS_ORIGINS=["*"]
+      - ALLOWED_HOSTS=["*"]
+      - MAX_REQUESTS_PER_MINUTE=60
+      - ENABLE_HTTPS_REDIRECT=false
+      - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
+      - FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET}
+      # For local development, set this to your Firebase service account JSON
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+    restart: unless-stopped
