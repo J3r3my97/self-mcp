@@ -2,8 +2,7 @@ from typing import Any, Dict, List
 
 import numpy as np
 
-from database.models import Product
-from database.repository import FirebaseRepository
+from src.database.repository import FirebaseRepository
 
 
 class SimilaritySearch:

@@ -38,16 +38,17 @@ class FashionDetector:
 
             # Initialize feature extractor
             logger.info("Loading ViT model...")
-            model_path = os.getenv("TRANSFORMERS_CACHE", "/app/models")
+            model_path = os.path.join(os.path.dirname(__file__), "huggingface_models")
+            os.makedirs(model_path, exist_ok=True)
             self.feature_extractor = ViTModel.from_pretrained(
                 "google/vit-base-patch16-224",
                 cache_dir=model_path,
-                local_files_only=True,
+                local_files_only=False,
             )
             self.feature_processor = ViTFeatureExtractor.from_pretrained(
                 "google/vit-base-patch16-224",
                 cache_dir=model_path,
-                local_files_only=True,
+                local_files_only=False,
             )
             self.feature_extractor.to(self.device)
             self.feature_extractor.eval()

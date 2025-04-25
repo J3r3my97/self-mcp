@@ -6,11 +6,13 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 
+from src.api.dependencies import get_current_active_user, require_admin
 from src.api.schemas import (
     DetectionResult,
     ErrorResponse,
     HealthResponse,
     SearchResponse,
+    TokenData,
 )
 from src.database.repository import FirebaseRepository
 from src.models.fashion_detector import FashionDetector
@@ -47,7 +49,9 @@ request_counts: Dict[str, Dict[str, Any]] = {}
     description="Upload an image containing fashion items to identify and find similar products.",
 )
 async def identify_fashion(
-    request: Request, file: UploadFile = File(..., description="Image file to process")
+    request: Request,
+    file: UploadFile = File(..., description="Image file to process"),
+    current_user: TokenData = Depends(get_current_active_user)
 ):
     try:
         # Rate limiting
@@ -115,7 +119,10 @@ async def identify_fashion(
     summary="Get search results by query ID",
     description="Retrieve the results of a previous image search by its query ID.",
 )
-async def get_search_results(query_id: str):
+async def get_search_results(
+    query_id: str,
+    current_user: TokenData = Depends(get_current_active_user)
+):
     try:
         # Get search results from repository
         result = await repository.get_search_result(query_id)
@@ -165,3 +172,30 @@ async def health_check() -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}", exc_info=True)
         return {"status": "unhealthy", "error": str(e), "timestamp": time.time()}
+
+# Add admin-only endpoints
+@router.get(
+    "/admin/stats",
+    summary="Get system statistics",
+    description="Get detailed system statistics (admin only).",
+)
+async def get_system_stats(
+    current_user: TokenData = Depends(require_admin)
+) -> Dict[str, Any]:
+    """Get system statistics (admin only)."""
+    try:
+        # Get database stats
+        db_stats = await repository.check_connection()
+        storage_stats = await repository.check_storage()
+
+        return {
+            "database": db_stats,
+            "storage": storage_stats,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        logger.error(f"Error getting system stats: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error getting system statistics",
+        )
