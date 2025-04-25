@@ -4,6 +4,8 @@ from typing import Any, Dict
 
 import google.cloud.secretmanager as secretmanager
 
+from src.utils.config import settings
+
 logger = logging.getLogger(__name__)
 
 def get_secret(project_id: str, secret_id: str, version: str = "latest") -> Dict[str, Any]:
@@ -42,7 +44,7 @@ def get_secret(project_id: str, secret_id: str, version: str = "latest") -> Dict
             raise ValueError("Secret payload is empty")
         # Parse the secret payload
         try:
-            secret_payload = json.loads(raw_payload)
+            secret_payload = settings.parse_service_account(raw_payload)
         except json.JSONDecodeError as e:
             logger.error(f"Error parsing secret payload: {e}")
             logger.error(f"First 10 chars of payload: {raw_payload[:10]}...")
