@@ -14,8 +14,8 @@ from src.services.image_processor import ImageProcessor
 def sample_image():
     """Create a sample image for testing."""
     # Create a 224x224 RGB image with a black background
-    img = Image.new('RGB', (224, 224), color='black')
-    
+    img = Image.new("RGB", (224, 224), color="black")
+
     # Draw a white square in the middle
     draw = ImageDraw.Draw(img)
     square_size = 100
@@ -23,28 +23,32 @@ def sample_image():
     y1 = (224 - square_size) // 2
     x2 = x1 + square_size
     y2 = y1 + square_size
-    draw.rectangle([x1, y1, x2, y2], fill='white')
-    
+    draw.rectangle([x1, y1, x2, y2], fill="white")
+
     # Convert to bytes
     img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
+    img.save(img_byte_arr, format="PNG")
     img_byte_arr.seek(0)
     return img_byte_arr.getvalue()
+
 
 @pytest.fixture
 def fashion_detector():
     """Initialize FashionDetector with CPU device."""
-    return FashionDetector(device='cpu')
+    return FashionDetector(device="cpu")
+
 
 @pytest.fixture
 def repository():
     """Initialize FirebaseRepository."""
     return FirebaseRepository()
 
+
 @pytest.fixture
 def similarity_search(repository):
     """Initialize SimilaritySearch."""
     return SimilaritySearch(repository=repository)
+
 
 @pytest.fixture
 def image_processor(fashion_detector, similarity_search, repository):
@@ -52,5 +56,5 @@ def image_processor(fashion_detector, similarity_search, repository):
     return ImageProcessor(
         detector=fashion_detector,
         similarity_search=similarity_search,
-        repository=repository
-    ) 
+        repository=repository,
+    )

@@ -10,11 +10,13 @@ class Category(BaseModel):
     parent_id: Optional[str] = None
     level: int = 1
 
+
 class Attribute(BaseModel):
     id: str
     name: str
     type: str  # e.g., 'color', 'pattern', 'material'
     value: str
+
 
 class Product(BaseModel):
     id: str
@@ -29,11 +31,13 @@ class Product(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+
 class DetectionResult(BaseModel):
     product_id: str
     similarity_score: float = Field(ge=0.0, le=1.0)
     bounding_box: Dict[str, float]  # x1, y1, x2, y2
     confidence: float = Field(ge=0.0, le=1.0)
+
 
 class SearchResult(BaseModel):
     query_id: str
@@ -41,17 +45,18 @@ class SearchResult(BaseModel):
     processing_time: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+
 # Firebase collection names
 COLLECTIONS = {
     "products": "products",
     "categories": "categories",
     "attributes": "attributes",
-    "searches": "searches"
+    "searches": "searches",
 }
 
 # Firebase storage paths
 STORAGE_PATHS = {
     "product_images": "product_images",
     "embeddings": "embeddings",
-    "uploads": "uploads"
-} 
+    "uploads": "uploads",
+}
