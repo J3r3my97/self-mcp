@@ -1,117 +1,131 @@
-# Gate-Release.io Fashion Identification AI
+# Gate-Release.io
 
-A computer vision system that identifies fashion items from user-uploaded images, helping users discover and purchase fashion items they see in images.
+A fashion item detection and similarity search API built with FastAPI, PyTorch, and Firebase.
 
 ## Features
 
-- Process images containing fashion items
-- Detect and isolate individual clothing items
-- Classify items by category
-- Extract attributes (color, pattern, material)
-- Match against a database of known fashion products
-- Return closest matches with purchase links
+- Fashion item detection using Faster R-CNN
+- Similarity search using Vision Transformer (ViT)
+- Firebase integration for storage and database
+- RESTful API endpoints
+- Docker support for easy deployment
 
 ## Prerequisites
 
+- Python 3.8+
 - Docker and Docker Compose
-- Firebase service account key
-- Python 3.12+ (for local development)
+- Firebase project with Realtime Database and Storage
+- Google Cloud service account credentials
 
 ## Local Development
 
-### Using Docker Compose
+### 1. Clone the repository
 
-1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/gate-release.git
 cd gate-release
 ```
 
-2. Create a `.env` file in the root directory with the following variables:
-```env
+### 2. Set up environment variables
+
+Create a `.env` file in the root directory:
+
+```bash
+# API Settings
+DEBUG=1
+PORT=8000
+CORS_ORIGINS=["*"]
+ALLOWED_HOSTS=["*"]
+MAX_REQUESTS_PER_MINUTE=60
+
+# Firebase Settings
 FIREBASE_DATABASE_URL=your_database_url
 FIREBASE_STORAGE_BUCKET=your_storage_bucket
-FIREBASE_SERVICE_ACCOUNT=base64:your_base64_encoded_service_account
+
+# Model Settings
+MODEL_DEVICE=cpu
+CONFIDENCE_THRESHOLD=0.5
 ```
 
-3. Start the application:
+### 3. Set up Firebase credentials
+
+1. Create a `config` directory in the root
+2. Place your Firebase service account JSON file as `config/service-account.json`
+
+### 4. Run with Docker Compose
+
 ```bash
+# Build and start the containers
 docker-compose up --build
+
+# To run in detached mode
+docker-compose up -d
 ```
 
-4. Access the API documentation at:
-```
-http://localhost:8000/docs
-```
+The API will be available at http://localhost:8000
 
-### Manual Setup (Optional)
+### 5. Access the API documentation
 
-1. Create and activate a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Place your Firebase service account key at `serviceAccountKey.json` in the root directory
-
-4. Run the application:
-```bash
-cd src
-uvicorn main:app --reload
-```
+Open your browser and navigate to:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## Deployment
 
-### Docker Deployment
+### 1. Production Environment Variables
 
-1. Build the Docker image:
+Update the `.env` file with production settings:
+
 ```bash
-docker build -t gate-release:latest .
+# API Settings
+DEBUG=0
+PORT=8000
+CORS_ORIGINS=["https://yourdomain.com"]
+ALLOWED_HOSTS=["yourdomain.com"]
+MAX_REQUESTS_PER_MINUTE=100
+
+# Security Settings
+ENABLE_HTTPS_REDIRECT=true
+
+# Firebase Settings
+FIREBASE_DATABASE_URL=your_production_database_url
+FIREBASE_STORAGE_BUCKET=your_production_storage_bucket
 ```
 
-2. Run the container:
+### 2. Build and Deploy
+
 ```bash
-docker run -d \
-  -p 8000:8000 \
-  -e FIREBASE_DATABASE_URL=your_database_url \
-  -e FIREBASE_STORAGE_BUCKET=your_storage_bucket \
-  -e FIREBASE_SERVICE_ACCOUNT=base64:your_base64_encoded_service_account \
-  gate-release:latest
+# Build the Docker image
+docker-compose build
+
+# Deploy to your server
+docker-compose up -d
 ```
 
-### CI/CD Deployment
+### 3. Monitoring
 
-The project uses GitHub Actions for continuous deployment. To deploy:
-
-1. Add the following secrets to your GitHub repository:
-   - `DOCKERHUB_USERNAME`: Your Docker Hub username
-   - `DOCKERHUB_TOKEN`: Your Docker Hub access token
-   - `FIREBASE_SERVICE_ACCOUNT`: Your base64-encoded Firebase service account
-
-2. Push to the main branch to trigger deployment:
+Check the logs:
 ```bash
-git push origin main
+docker-compose logs -f
 ```
 
-## API Documentation
+## API Endpoints
 
-The API documentation is available at `/docs` when running the application. Key endpoints include:
+- `POST /api/v1/identify`: Upload an image for fashion item detection
+- `GET /api/v1/search/{query_id}`: Retrieve search results
+- `GET /api/v1/health`: Check API health status
 
-- `POST /identify`: Upload an image for fashion item identification
-- `GET /search/{query_id}`: Retrieve search results
-- `GET /health`: Check application health status
+## Testing
 
-## Security Considerations
+Run the test suite:
+```bash
+# Using Docker
+docker-compose exec app pytest src/tests/
 
-- The Firebase service account key is handled securely through environment variables
-- Rate limiting is implemented to prevent abuse
-- CORS is configured to restrict access to specified origins
-- HTTPS is enforced in production
+# Locally
+cd src
+pytest tests/
+```
 
 ## Contributing
 
@@ -123,4 +137,4 @@ The API documentation is available at `/docs` when running the application. Key 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.

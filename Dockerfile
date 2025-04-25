@@ -9,7 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src \
     TRANSFORMERS_CACHE=/app/models \
-    HF_HOME=/app/models
+    HF_HOME=/app/models \
+    TORCH_HOME=/app/models
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -24,8 +25,12 @@ RUN mkdir -p /app/models
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the model
-RUN python -c "from transformers import ViTModel; ViTModel.from_pretrained('google/vit-base-patch16-224')"
+# Create scripts directory and copy download script
+RUN mkdir -p /app/scripts
+COPY scripts/download_models.py /app/scripts/
+
+# Pre-download all models
+RUN python /app/scripts/download_models.py
 
 # Copy project files
 COPY . .
