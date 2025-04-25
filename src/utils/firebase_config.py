@@ -19,16 +19,26 @@ def initialize_firebase():
             logger.info("Firebase already initialized")
             return True
 
-        # Get service account from settings
-        if settings.FIREBASE_SERVICE_ACCOUNT:
+        # Try to get credentials from environment variable first
+        cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+        if cred_path and os.path.exists(cred_path):
+            try:
+                cred = credentials.Certificate(cred_path)
+                logger.info(f"Using credentials from file: {cred_path}")
+            except Exception as e:
+                logger.error(f"Error creating credentials from file: {e}")
+                return False
+        # Fall back to service account from settings
+        elif settings.FIREBASE_SERVICE_ACCOUNT:
             try:
                 cred = credentials.Certificate(settings.FIREBASE_SERVICE_ACCOUNT)
+                logger.info("Using credentials from settings")
             except Exception as e:
                 logger.error(f"Error creating credentials from service account: {e}")
                 return False
         else:
-            logger.error("Firebase service account not found in settings")
-            logger.error("Please provide FIREBASE_SERVICE_ACCOUNT environment variable")
+            logger.error("No Firebase credentials found")
+            logger.error("Please provide either GOOGLE_APPLICATION_CREDENTIALS environment variable or FIREBASE_SERVICE_ACCOUNT in settings")
             return False
 
         # Initialize the app
