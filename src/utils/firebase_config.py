@@ -18,7 +18,7 @@ def initialize_firebase():
             return True
 
         # Get project ID from environment or settings
-        project_id = os.getenv('PROJECT_ID')
+        project_id = os.getenv('PROJECT_ID', settings.PROJECT_ID)
         if not project_id:
             logger.error("PROJECT_ID environment variable not set")
             return False

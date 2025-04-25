@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # API Settings
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Gate-Release.io"
+    PROJECT_ID: str = "bubbleit-dev"
     DEBUG: bool = True
     PORT: int = 8000
     LOG_LEVEL: str = "INFO"
