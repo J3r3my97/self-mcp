@@ -11,7 +11,8 @@ import uuid
 
 from src.database.models import Category, Product
 from src.database.repository import FirebaseRepository
-from src.utils.firebase_config import get_database, get_storage, initialize_firebase
+from src.utils.firebase_config import (get_database, get_storage,
+                                       initialize_firebase)
 
 
 def test_firebase_connection():

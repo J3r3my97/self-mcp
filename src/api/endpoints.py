@@ -3,15 +3,12 @@ import time
 from datetime import datetime
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import (APIRouter, Depends, File, HTTPException, Request,
+                     UploadFile)
 from fastapi.responses import JSONResponse
 
-from src.api.schemas import (
-    DetectionResult,
-    ErrorResponse,
-    HealthResponse,
-    SearchResponse,
-)
+from src.api.schemas import (DetectionResult, ErrorResponse, HealthResponse,
+                             SearchResponse)
 from src.database.repository import FirebaseRepository
 from src.models.fashion_detector import FashionDetector
 from src.models.similarity_search import SimilaritySearch

@@ -5,15 +5,8 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from database.models import (
-    COLLECTIONS,
-    STORAGE_PATHS,
-    Attribute,
-    Category,
-    DetectionResult,
-    Product,
-    SearchResult,
-)
+from database.models import (COLLECTIONS, STORAGE_PATHS, Attribute, Category,
+                             DetectionResult, Product, SearchResult)
 from utils.firebase_config import get_database, get_storage
 
 # Configure logging
