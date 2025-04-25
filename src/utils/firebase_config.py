@@ -1,13 +1,11 @@
-import base64
-import json
 import logging
 import os
-from pathlib import Path
 
 import firebase_admin
 from firebase_admin import credentials, db, storage
 
 from src.utils.config import settings
+from src.utils.secret import get_secret
 
 logger = logging.getLogger(__name__)
 
@@ -19,23 +17,23 @@ def initialize_firebase():
             logger.info("Firebase already initialized")
             return True
 
-        # Get credentials from environment variable
-        service_account_json = os.getenv('FIREBASE_SERVICE_ACCOUNT')
-        if not service_account_json:
-            logger.error("FIREBASE_SERVICE_ACCOUNT environment variable not set")
+        # Get project ID from environment or settings
+        project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
+        if not project_id:
+            logger.error("GOOGLE_CLOUD_PROJECT environment variable not set")
             return False
 
         try:
-            # Use the Settings class's parse_service_account function
-            service_account_info = settings.parse_service_account(service_account_json)
-            if not service_account_info:
-                logger.error("Failed to parse FIREBASE_SERVICE_ACCOUNT")
-                return False
-
+            # Get service account from Secret Manager
+            service_account_info = get_secret(
+                project_id=project_id,
+                secret_id='firebase-service-account'
+            )
+            
             cred = credentials.Certificate(service_account_info)
-            logger.info("Using credentials from FIREBASE_SERVICE_ACCOUNT environment variable")
+            logger.info("Using credentials from Secret Manager")
         except Exception as e:
-            logger.error(f"Error creating credentials from FIREBASE_SERVICE_ACCOUNT: {e}")
+            logger.error(f"Error creating credentials from Secret Manager: {e}")
             return False
 
         # Initialize the app
