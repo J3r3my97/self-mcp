@@ -43,7 +43,7 @@ steps:
       - '--port'
       - '8000'
       - '--memory'
-      - '1Gi'
+      - '4Gi'
       - '--cpu'
       - '1'
       - '--timeout'

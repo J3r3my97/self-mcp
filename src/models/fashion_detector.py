@@ -1,5 +1,6 @@
 import io
 import logging
+import os
 import time
 from typing import Any, Dict, List
 
@@ -13,28 +14,49 @@ from PIL import Image
 from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2
 from transformers import ViTFeatureExtractor, ViTModel
 
-from utils.config import settings
+from src.utils.config import settings
 
+logger = logging.getLogger(__name__)
 
 class FashionDetector:
     def __init__(self, device=None):
         """Initialize the fashion detector with object detection and feature extraction models."""
         self.device = device if device else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        logger.info(f"Using device: {self.device}")
         
-        # Initialize object detection model
-        self.detector = fasterrcnn_resnet50_fpn_v2(pretrained=True)
-        self.detector.to(self.device)
-        self.detector.eval()
-        
-        # Initialize feature extractor
-        self.feature_extractor = ViTModel.from_pretrained('google/vit-base-patch16-224')
-        self.feature_processor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
-        self.feature_extractor.to(self.device)
-        self.feature_extractor.eval()
-        
-        # Initialize linear layers for attribute prediction
-        self.category_classifier = nn.Linear(768, 50).to(self.device)  # 50 fashion categories
-        self.attribute_classifier = nn.Linear(768, 100).to(self.device)  # 100 attributes
+        try:
+            # Initialize object detection model
+            logger.info("Loading object detection model...")
+            self.detector = fasterrcnn_resnet50_fpn_v2(pretrained=True)
+            self.detector.to(self.device)
+            self.detector.eval()
+            
+            # Initialize feature extractor
+            logger.info("Loading ViT model...")
+            model_path = os.getenv('TRANSFORMERS_CACHE', '/app/models')
+            self.feature_extractor = ViTModel.from_pretrained(
+                'google/vit-base-patch16-224',
+                cache_dir=model_path,
+                local_files_only=True
+            )
+            self.feature_processor = ViTFeatureExtractor.from_pretrained(
+                'google/vit-base-patch16-224',
+                cache_dir=model_path,
+                local_files_only=True
+            )
+            self.feature_extractor.to(self.device)
+            self.feature_extractor.eval()
+            
+            # Initialize linear layers for attribute prediction
+            logger.info("Initializing classifiers...")
+            self.category_classifier = nn.Linear(768, 50).to(self.device)  # 50 fashion categories
+            self.attribute_classifier = nn.Linear(768, 100).to(self.device)  # 100 attributes
+            
+            logger.info("Model initialization completed successfully")
+            
+        except Exception as e:
+            logger.error(f"Error initializing models: {str(e)}")
+            raise RuntimeError(f"Failed to initialize models: {str(e)}")
 
     def preprocess_image(self, image_data):
         """
