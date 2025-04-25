@@ -40,6 +40,20 @@ steps:
       - 'FIREBASE_SERVICE_ACCOUNT=firebase-service-account:latest'
       - '--platform'
       - managed
+      - '--port'
+      - '8000'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '300'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '10'
+      - '--concurrency'
+      - '80'
     id: Deploy Container on Google Cloud Run
 
 availableSecrets:

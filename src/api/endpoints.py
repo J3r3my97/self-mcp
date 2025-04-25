@@ -6,21 +6,22 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 
-from api.schemas import DetectionResult, ErrorResponse, HealthResponse, SearchResponse
-from database.repository import FirebaseRepository
-from models.fashion_detector import FashionDetector
-from models.similarity_search import SimilaritySearch
-from services.image_processor import ImageProcessor
-from utils.config import settings
-from utils.firebase_config import initialize_firebase
+from src.api.schemas import (
+    DetectionResult,
+    ErrorResponse,
+    HealthResponse,
+    SearchResponse,
+)
+from src.database.repository import FirebaseRepository
+from src.models.fashion_detector import FashionDetector
+from src.models.similarity_search import SimilaritySearch
+from src.services.image_processor import ImageProcessor
+from src.utils.config import settings
+from src.utils.firebase_config import get_database, get_storage
 
 # Configure logging
 logging.basicConfig(level=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
-
-# Initialize Firebase
-if not initialize_firebase():
-    raise RuntimeError("Failed to initialize Firebase")
 
 router = APIRouter()
 
