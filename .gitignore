@@ -13,3 +13,4 @@ __pycache__/
 .Python
 /local
 serviceAccountKey.json
+serviceAccountKey.base64

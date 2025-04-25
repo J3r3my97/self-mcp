@@ -1,6 +1,7 @@
+import base64
 import json
 import os
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
@@ -28,6 +29,7 @@ class Settings(BaseSettings):
     # Firebase Settings
     FIREBASE_DATABASE_URL: str = "https://bubbleit-dev-default-rtdb.firebaseio.com"
     FIREBASE_STORAGE_BUCKET: str = "bubbleit-dev.firebasestorage.app"
+    FIREBASE_SERVICE_ACCOUNT: Optional[Dict[str, Any]] = None
     
     # Model Settings
     MODEL_DEVICE: str = "cuda"  # or "cpu"
@@ -54,6 +56,22 @@ class Settings(BaseSettings):
             except json.JSONDecodeError:
                 # If not JSON, split by comma and strip whitespace
                 return [x.strip() for x in v.split(",")]
+        return v
+    
+    @field_validator("FIREBASE_SERVICE_ACCOUNT", mode="before")
+    @classmethod
+    def parse_service_account(cls, v):
+        if isinstance(v, str):
+            try:
+                # Try to decode base64 if it's encoded
+                try:
+                    decoded = base64.b64decode(v).decode('utf-8')
+                    return json.loads(decoded)
+                except:
+                    # If not base64, try to parse as JSON directly
+                    return json.loads(v)
+            except json.JSONDecodeError:
+                return None
         return v
     
     class Config:

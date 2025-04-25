@@ -25,6 +25,9 @@ COPY . .
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
+# Create directory for service account
+RUN mkdir -p /app/config
+
 # Expose port
 EXPOSE 8000
 
