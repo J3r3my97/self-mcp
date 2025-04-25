@@ -1,12 +1,4 @@
 steps:
-  # Access the secret
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud secrets versions access latest --secret=firebase-service-account > /workspace/serviceAccountKey.json
-        
   # Build the container
   - name: gcr.io/cloud-builders/docker
     args:
@@ -14,10 +6,7 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/cloud-run-source-deploy:$COMMIT_SHA'
       - .
-      - '--build-arg'
-      - 'FIREBASE_SERVICE_ACCOUNT=$$(cat /workspace/serviceAccountKey.json)'
     id: Build Container Image
-    secretEnv: ['FIREBASE_SERVICE_ACCOUNT']
     
   # Push the container
   - name: gcr.io/cloud-builders/docker
