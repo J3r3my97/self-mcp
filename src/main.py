@@ -4,9 +4,9 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from api.endpoints import router as api_router
-from utils.config import settings
-from utils.firebase_config import initialize_firebase
+from src.api.endpoints import router as api_router
+from src.utils.config import settings
+from src.utils.firebase_config import initialize_firebase
 
 # Initialize Firebase
 if not initialize_firebase():
@@ -49,4 +49,4 @@ async def live_demo():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=settings.PORT)
