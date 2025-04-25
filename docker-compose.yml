@@ -8,7 +8,6 @@ services:
     volumes:
       - ./src:/app/src
       - ./models:/app/models
-      - ./config:/app/config:ro
     environment:
       - DEBUG=1
       - PORT=8000
@@ -18,5 +17,6 @@ services:
       - ENABLE_HTTPS_REDIRECT=false
       - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
       - FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET}
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/config/service-account.json
+      # For local development, set this to your Firebase service account JSON
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
     restart: unless-stopped

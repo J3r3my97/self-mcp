@@ -19,26 +19,23 @@ def initialize_firebase():
             logger.info("Firebase already initialized")
             return True
 
-        # Try to get credentials from environment variable first
-        cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-        if cred_path and os.path.exists(cred_path):
-            try:
-                cred = credentials.Certificate(cred_path)
-                logger.info(f"Using credentials from file: {cred_path}")
-            except Exception as e:
-                logger.error(f"Error creating credentials from file: {e}")
+        # Get credentials from environment variable
+        service_account_json = os.getenv('FIREBASE_SERVICE_ACCOUNT')
+        if not service_account_json:
+            logger.error("FIREBASE_SERVICE_ACCOUNT environment variable not set")
+            return False
+
+        try:
+            # Use the Settings class's parse_service_account function
+            service_account_info = settings.parse_service_account(service_account_json)
+            if not service_account_info:
+                logger.error("Failed to parse FIREBASE_SERVICE_ACCOUNT")
                 return False
-        # Fall back to service account from settings
-        elif settings.FIREBASE_SERVICE_ACCOUNT:
-            try:
-                cred = credentials.Certificate(settings.FIREBASE_SERVICE_ACCOUNT)
-                logger.info("Using credentials from settings")
-            except Exception as e:
-                logger.error(f"Error creating credentials from service account: {e}")
-                return False
-        else:
-            logger.error("No Firebase credentials found")
-            logger.error("Please provide either GOOGLE_APPLICATION_CREDENTIALS environment variable or FIREBASE_SERVICE_ACCOUNT in settings")
+
+            cred = credentials.Certificate(service_account_info)
+            logger.info("Using credentials from FIREBASE_SERVICE_ACCOUNT environment variable")
+        except Exception as e:
+            logger.error(f"Error creating credentials from FIREBASE_SERVICE_ACCOUNT: {e}")
             return False
 
         # Initialize the app
