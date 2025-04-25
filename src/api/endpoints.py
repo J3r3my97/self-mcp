@@ -196,6 +196,6 @@ async def get_system_stats(
     except Exception as e:
         logger.error(f"Error getting system stats: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail="Error getting system statistics",
         )
