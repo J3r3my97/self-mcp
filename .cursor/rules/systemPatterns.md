@@ -18,6 +18,11 @@ graph TD
     I --> K[Firebase Storage]
     J --> B
     K --> B
+    B --> L[AuthService]
+    L --> M[JWT Token]
+    L --> N[Secret Manager]
+    M --> B
+    N --> B
 ```
 
 ### Component Relationships
@@ -26,6 +31,8 @@ graph TD
    - Manages file uploads
    - Coordinates processing pipeline
    - Returns results to client
+   - Manages authentication
+   - Enforces rate limiting
 
 2. **ImageProcessor**
    - Preprocesses uploaded images
@@ -62,11 +69,19 @@ graph TD
    - Manages embeddings
    - Handles file storage
    - Provides secure access
+   - Stores user data
+
+8. **AuthService**
+   - Manages user authentication
+   - Handles JWT tokens
+   - Integrates with Secret Manager
+   - Enforces security policies
 
 ## Design Patterns
 
 ### 1. Service Pattern
 - ImageProcessor service
+- AuthService
 - Clear responsibility separation
 - Coordinated processing flow
 - Error handling and logging
@@ -76,18 +91,28 @@ graph TD
 - Centralized data access
 - Simplified data management
 - Testing support
+- User data management
 
 ### 3. Factory Pattern
 - Model initialization
 - Configuration management
 - Resource handling
 - Backend flexibility
+- Token generation
 
 ### 4. Strategy Pattern
 - Interchangeable algorithms
 - Processing options
 - Model selection
 - Search strategies
+- Authentication methods
+
+### 5. Decorator Pattern
+- Rate limiting
+- Authentication checks
+- Error handling
+- Logging
+- Monitoring
 
 ## Technical Decisions
 
@@ -102,18 +127,29 @@ graph TD
 - Firebase Storage for images and embeddings
 - Custom indexing for similarity search
 - Efficient data structure
+- User data storage
 
 ### 3. API Design
 - RESTful endpoints
 - Async processing
 - Clear error handling
 - Versioned API
+- Authentication flow
+- Rate limiting
 
 ### 4. Storage Strategy
 - Firebase Storage for uploads
 - Efficient cleanup
 - Secure access
 - Optimized for retrieval
+- User data security
+
+### 5. Security Design
+- JWT token authentication
+- OAuth2 password flow
+- Secret Manager integration
+- Rate limiting
+- Input validation
 
 ## Component Communication
 
@@ -122,12 +158,14 @@ graph TD
 - Async/await pattern
 - Error propagation
 - Logging and monitoring
+- Token validation
 
 ### 2. External Communication
 - HTTP/REST API
 - Firebase SDK
 - Secure file transfer
 - Rate limiting
+- Token-based auth
 
 ## Error Handling
 
@@ -136,9 +174,13 @@ graph TD
 - Processing errors
 - Firebase errors
 - Model errors
+- Authentication errors
+- Rate limit errors
 
 ### 2. Error Recovery
 - Graceful degradation
 - Retry mechanisms
 - Fallback options
-- Clear error messages 
+- Clear error messages
+- Token refresh
+- Rate limit handling 

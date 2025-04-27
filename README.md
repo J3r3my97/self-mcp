@@ -1,140 +1,168 @@
 # Gate-Release.io
 
-A fashion item detection and similarity search API built with FastAPI, PyTorch, and Firebase.
+A FastAPI-based application for detecting fashion items in images and finding similar products.
 
 ## Features
 
-- Fashion item detection using Faster R-CNN
-- Similarity search using Vision Transformer (ViT)
-- Firebase integration for storage and database
-- RESTful API endpoints
-- Docker support for easy deployment
+- Image-based fashion item detection
+- Similar product search
+- User authentication and authorization
+- Rate limiting
+- Health monitoring
+- Admin dashboard
 
-## Prerequisites
+## Tech Stack
 
-- Python 3.8+
-- Docker and Docker Compose
-- Firebase project with Realtime Database and Storage
-- Google Cloud service account credentials
+- **Backend**: FastAPI
+- **Database**: Firebase Realtime Database
+- **Storage**: Firebase Storage
+- **Authentication**: JWT with OAuth2
+- **ML Models**: 
+  - Object Detection: Faster R-CNN
+  - Feature Extraction: ViT (Vision Transformer)
+- **Cloud**: Google Cloud Platform
+  - Secret Manager for secure key storage
+  - Cloud Storage for model files
 
-## Local Development
+## Project Structure
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/yourusername/gate-release.git
-cd gate-release
+```
+src/
+├── api/
+│   ├── auth.py           # Authentication endpoints
+│   ├── endpoints.py      # Main API endpoints
+│   └── schemas.py        # Pydantic models
+├── database/
+│   ├── models.py         # Database models
+│   └── repository.py     # Firebase operations
+├── models/
+│   ├── fashion_detector.py  # ML model for detection
+│   └── similarity_search.py # Similarity search logic
+├── services/
+│   ├── auth_service.py   # Authentication logic
+│   └── image_processor.py # Image processing service
+└── utils/
+    ├── config.py         # Application configuration
+    └── firebase_config.py # Firebase setup
 ```
 
-### 2. Set up environment variables
+## Setup
 
-Create a `.env` file in the root directory:
-
+1. **Environment Setup**
 ```bash
-# API Settings
-DEBUG=1
-PORT=8000
-CORS_ORIGINS=["*"]
-ALLOWED_HOSTS=["*"]
-MAX_REQUESTS_PER_MINUTE=60
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Firebase Settings
-FIREBASE_DATABASE_URL=your_database_url
-FIREBASE_STORAGE_BUCKET=your_storage_bucket
-
-# Model Settings
-MODEL_DEVICE=cpu
-CONFIDENCE_THRESHOLD=0.5
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### 3. Set up Firebase credentials
-
-1. Create a `config` directory in the root
-2. Place your Firebase service account JSON file as `config/service-account.json`
-
-### 4. Run with Docker Compose
-
+2. **Firebase Configuration**
+- Create a Firebase project
+- Download service account key
+- Set environment variables:
 ```bash
-# Build and start the containers
-docker-compose up --build
-
-# To run in detached mode
-docker-compose up -d
+export FIREBASE_DATABASE_URL="your-database-url"
+export FIREBASE_STORAGE_BUCKET="your-storage-bucket"
+export FIREBASE_SERVICE_ACCOUNT="base64-encoded-service-account"
 ```
 
-The API will be available at http://localhost:8000
-
-### 5. Access the API documentation
-
-Open your browser and navigate to:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-## Deployment
-
-### 1. Production Environment Variables
-
-Update the `.env` file with production settings:
-
+3. **Google Cloud Setup**
+- Create a GCP project
+- Enable Secret Manager API
+- Create secrets:
 ```bash
-# API Settings
-DEBUG=0
-PORT=8000
-CORS_ORIGINS=["https://yourdomain.com"]
-ALLOWED_HOSTS=["yourdomain.com"]
-MAX_REQUESTS_PER_MINUTE=100
-
-# Security Settings
-ENABLE_HTTPS_REDIRECT=true
-
-# Firebase Settings
-FIREBASE_DATABASE_URL=your_production_database_url
-FIREBASE_STORAGE_BUCKET=your_production_storage_bucket
+gcloud secrets create SECRET_KEY --project=your-project-id
+gcloud secrets versions add SECRET_KEY --data-file=- <<< "your-secret-key"
 ```
 
-### 2. Build and Deploy
+4. **Model Setup**
+- Models are automatically downloaded to `src/models/huggingface_models/`
+- First run might take time to download models
+
+## Running the Application
 
 ```bash
-# Build the Docker image
-docker-compose build
-
-# Deploy to your server
-docker-compose up -d
+# Start the server
+uvicorn src.main:app --reload
 ```
 
-### 3. Monitoring
-
-Check the logs:
-```bash
-docker-compose logs -f
-```
+The API will be available at:
+- API: http://localhost:8000
+- Docs: http://localhost:8000/docs
+- OpenAPI Schema: http://localhost:8000/openapi.json
 
 ## API Endpoints
 
-- `POST /api/v1/identify`: Upload an image for fashion item detection
-- `GET /api/v1/search/{query_id}`: Retrieve search results
-- `GET /api/v1/health`: Check API health status
+### Authentication
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login and get token
+- `GET /api/v1/auth/me` - Get current user info
 
-## Testing
+### Main Features
+- `POST /api/v1/identify` - Upload image for fashion detection
+- `GET /api/v1/search/{query_id}` - Get search results
+- `GET /api/v1/health` - Check system health
 
-Run the test suite:
-```bash
-# Using Docker
-docker-compose exec app pytest src/tests/
+### Admin
+- `GET /api/v1/admin/stats` - Get system statistics (admin only)
 
-# Locally
-cd src
-pytest tests/
+## Authentication
+
+The API uses JWT tokens for authentication:
+1. Register a user
+2. Login to get a token
+3. Use the token in the Authorization header:
+```
+Authorization: Bearer <your-token>
 ```
 
-## Contributing
+## Importing to Postman
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+1. Get the OpenAPI schema:
+```bash
+curl http://localhost:8000/openapi.json > openapi.json
+```
 
-## License
+2. Import into Postman:
+- Open Postman
+- Click "Import"
+- Upload the `openapi.json` file
+- Set up OAuth2 authentication:
+  - Token URL: http://localhost:8000/api/v1/auth/login
+  - Grant Type: Password Credentials
+  - Username: your-email
+  - Password: your-password
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Security Notes
+
+- All secrets are stored in Google Cloud Secret Manager
+- JWT tokens expire after 30 minutes
+- Rate limiting is enabled (60 requests per minute)
+- HTTPS redirection can be enabled in production
+
+## Development
+
+- Use `black` for code formatting
+- Run tests with `pytest`
+- Enable debug mode for detailed logs
+- Use the `/health` endpoint to monitor system status
+
+## Production Deployment
+
+1. Set up environment variables:
+```bash
+export DEBUG=false
+export ENABLE_HTTPS_REDIRECT=true
+export SECRET_KEY=$(gcloud secrets versions access latest --secret=SECRET_KEY)
+```
+
+2. Use a production-grade server:
+```bash
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+3. Set up a reverse proxy (nginx) for HTTPS
+4. Configure CORS for your domain
+5. Set up monitoring and logging
