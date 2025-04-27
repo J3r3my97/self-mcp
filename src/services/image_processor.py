@@ -7,11 +7,11 @@ from typing import Any, Dict, List
 import numpy as np
 from PIL import Image
 
-from api.schemas import DetectionResponse, ProductResponse, SearchResponse
-from database.models import Category, Product
-from database.repository import FirebaseRepository
-from models.fashion_detector import FashionDetector
-from models.similarity_search import SimilaritySearch
+from src.api.schemas import DetectionResponse, ProductResponse, SearchResponse
+from src.database.models import Category, Product
+from src.database.repository import FirebaseRepository
+from src.models.fashion_detector import FashionDetector
+from src.models.similarity_search import SimilaritySearch
 
 # Configure logging
 logger = logging.getLogger(__name__)

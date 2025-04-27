@@ -30,6 +30,11 @@ class FashionDetector:
         logger.info(f"Using device: {self.device}")
 
         try:
+            # Set model cache directory
+            model_path = os.getenv("TRANSFORMERS_CACHE", os.path.join(os.path.dirname(__file__), "huggingface_models"))
+            os.makedirs(model_path, exist_ok=True)
+            logger.info(f"Using model cache directory: {model_path}")
+
             # Initialize object detection model
             logger.info("Loading object detection model...")
             self.detector = fasterrcnn_resnet50_fpn_v2(pretrained=True)
@@ -38,17 +43,32 @@ class FashionDetector:
 
             # Initialize feature extractor
             logger.info("Loading ViT model...")
-            model_path = os.getenv("TRANSFORMERS_CACHE", "/app/models")
-            self.feature_extractor = ViTModel.from_pretrained(
-                "google/vit-base-patch16-224",
-                cache_dir=model_path,
-                local_files_only=True,
-            )
-            self.feature_processor = ViTFeatureExtractor.from_pretrained(
-                "google/vit-base-patch16-224",
-                cache_dir=model_path,
-                local_files_only=True,
-            )
+            try:
+                # First try to load from cache
+                self.feature_extractor = ViTModel.from_pretrained(
+                    "google/vit-base-patch16-224",
+                    cache_dir=model_path,
+                    local_files_only=True,
+                )
+                self.feature_processor = ViTFeatureExtractor.from_pretrained(
+                    "google/vit-base-patch16-224",
+                    cache_dir=model_path,
+                    local_files_only=True,
+                )
+            except Exception as e:
+                logger.warning(f"Failed to load models from cache: {str(e)}")
+                logger.info("Attempting to download models...")
+                self.feature_extractor = ViTModel.from_pretrained(
+                    "google/vit-base-patch16-224",
+                    cache_dir=model_path,
+                    local_files_only=False,
+                )
+                self.feature_processor = ViTFeatureExtractor.from_pretrained(
+                    "google/vit-base-patch16-224",
+                    cache_dir=model_path,
+                    local_files_only=False,
+                )
+
             self.feature_extractor.to(self.device)
             self.feature_extractor.eval()
 

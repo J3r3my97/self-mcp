@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Create models directory
-RUN mkdir -p /app/models
+RUN mkdir -p /app/models && chmod 777 /app/models
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
@@ -31,7 +31,11 @@ RUN mkdir -p /app/scripts
 COPY scripts/download_models.py /app/scripts/
 
 # Pre-download all models
-RUN python /app/scripts/download_models.py
+RUN python /app/scripts/download_models.py && \
+    # Verify models were downloaded
+    ls -la /app/models && \
+    # Make models directory writable
+    chmod -R 777 /app/models
 
 # Copy project files
 COPY . .

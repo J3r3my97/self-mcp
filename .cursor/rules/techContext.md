@@ -8,6 +8,8 @@
 - **Database**: Firebase Realtime Database
 - **Vector Store**: Firebase Storage + Custom Index
 - **API Documentation**: OpenAPI/Swagger
+- **Authentication**: JWT with OAuth2
+- **Secret Management**: Google Cloud Secret Manager
 
 ### Computer Vision
 - **Object Detection**: Faster R-CNN (ResNet50 FPN V2)
@@ -20,6 +22,7 @@
 - **Database**: Firebase
 - **Storage**: Firebase Storage
 - **Testing**: pytest, pytest-asyncio
+- **Security**: JWT, OAuth2, Secret Manager
 
 ## Development Setup
 
@@ -28,6 +31,7 @@
 - Virtual environment (.venv)
 - Environment variables (.env)
 - Firebase configuration
+- Google Cloud credentials
 
 ### Dependencies
 ```
@@ -39,6 +43,9 @@ numpy==1.26.3
 firebase-admin
 pytest
 pytest-asyncio
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
 ```
 
 ### Firebase Setup
@@ -49,6 +56,16 @@ pytest-asyncio
    - products
    - categories
    - search_results
+   - users
+
+### Authentication Setup
+1. JWT token configuration
+   - 30-minute expiration
+   - HS256 algorithm
+   - Secret key from Secret Manager
+2. OAuth2 password flow
+3. User management
+4. Token validation
 
 ### Model Setup
 1. Faster R-CNN (pre-trained)
@@ -69,12 +86,16 @@ pytest-asyncio
 - Input validation
 - Firebase rules
 - Error handling
+- JWT token security
+- Rate limiting
+- Secret management
 
 ### Scalability
 - Firebase auto-scaling
 - Efficient data structure
 - Embedding storage
 - Batch operations
+- Token management
 
 ## Development Workflow
 
@@ -86,7 +107,8 @@ src/
 │   ├── fashion_detector.py
 │   └── similarity_search.py
 ├── services/      # Business logic
-│   └── image_processor.py
+│   ├── image_processor.py
+│   └── auth_service.py
 ├── database/      # Firebase models
 ├── utils/         # Utilities
 └── main.py        # Application entry
@@ -97,27 +119,56 @@ src/
 2. Integration tests for pipeline
 3. API tests for endpoints
 4. Performance testing
+5. Security testing
+6. Authentication testing
 
 ### Deployment Process
 1. Local development
 2. Firebase deployment
 3. Production setup
 4. Monitoring setup
+5. Security configuration
 
 ## API Documentation
 
 ### Endpoints
-1. POST /api/identify
+1. POST /api/v1/auth/register
+   - User registration
+   - Input validation
+   - Password hashing
+
+2. POST /api/v1/auth/login
+   - User authentication
+   - Token generation
+   - OAuth2 password flow
+
+3. GET /api/v1/auth/me
+   - User information
+   - Token validation
+   - Protected route
+
+4. POST /api/v1/identify
    - Image upload
    - Fashion detection
    - Product matching
 
-2. GET /api/health
+5. GET /api/v1/health
    - System status
    - Component health
 
 ### Data Models
-1. ProductResponse
+1. UserResponse
+   - ID
+   - Email
+   - Created at
+   - Updated at
+
+2. TokenResponse
+   - Access token
+   - Token type
+   - Expires in
+
+3. ProductResponse
    - ID
    - Brand
    - Name
@@ -126,13 +177,13 @@ src/
    - Source URL
    - Image URL
 
-2. DetectionResponse
+4. DetectionResponse
    - Product
    - Similarity score
    - Bounding box
    - Confidence
 
-3. SearchResponse
+5. SearchResponse
    - Query ID
    - Results list
    - Processing time
@@ -145,9 +196,13 @@ src/
 2. Error rates
 3. Model accuracy
 4. System load
+5. Authentication attempts
+6. Rate limit hits
 
 ### Logging
 1. Request logging
 2. Error logging
 3. Performance metrics
-4. System events 
+4. System events
+5. Authentication events
+6. Security events 

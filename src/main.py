@@ -4,6 +4,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
+from src.api.auth import router as auth_router
 from src.api.endpoints import router as api_router
 from src.utils.config import settings
 from src.utils.firebase_config import initialize_firebase
@@ -32,8 +33,9 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 if settings.ENABLE_HTTPS_REDIRECT:
     app.add_middleware(HTTPSRedirectMiddleware)
 
-# Include API router
-app.include_router(api_router, prefix=settings.API_V1_STR)
+# Include routers
+app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(api_router, prefix=settings.API_V1_STR, tags=["api"])
 
 
 @app.get("/")

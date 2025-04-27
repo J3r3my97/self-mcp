@@ -1,7 +1,21 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
+
+
+class User(BaseModel):
+    id: str
+    email: EmailStr
+    hashed_password: str
+    role: str = "user"  # admin, user, service
+    api_key: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        from_attributes = True
 
 
 class Category(BaseModel):
@@ -52,6 +66,7 @@ COLLECTIONS = {
     "categories": "categories",
     "attributes": "attributes",
     "searches": "searches",
+    "users": "users",
 }
 
 # Firebase storage paths
